@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ===== Bloomberg Terminal Theme ===== */
+@theme {
+  --color-bg-primary: #0A0A0F;
+  --color-bg-surface: #111118;
+  --color-bg-elevated: #191922;
+  --color-border: #1E1E2E;
+  --color-border-glow: #2A2A3E;
+  --color-accent: #00FF94;
+  --color-bullish: #00FF94;
+  --color-bearish: #FF3B5C;
+  --color-neutral-accent: #A0A0B0;
+  --color-text-primary: #E8E8F0;
+  --color-text-secondary: #6B6B80;
+  --color-text-muted: #44445A;
+  --color-yellow: #FFD700;
+  --color-yellow-dim: #B8960F;
+  --color-tag-trade-war: #FF6B35;
+  --color-tag-sanctions: #FF3B5C;
+  --color-tag-regulation: #7B68EE;
+  --color-tag-conflict: #FF1744;
+  --color-tag-election: #448AFF;
+  --color-tag-policy: #00BCD4;
+  --color-tag-supply-chain: #FF9800;
+  --color-tag-currency: #FFD700;
+  --font-display: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ===== Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Scanline Overlay ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 148, 0.015) 2px,
+    rgba(0, 255, 148, 0.015) 4px
+  );
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ===== Card Base ===== */
+.card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--color-border-glow);
+  box-shadow: 0 0 20px rgba(0, 255, 148, 0.03);
+}
+
+/* ===== Skeleton Shimmer ===== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-surface) 25%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ===== Pulse Animation for Live Dot ===== */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 4px var(--color-accent);
+  }
+  50% {
+    opacity: 0.5;
+    box-shadow: 0 0 12px var(--color-accent), 0 0 24px rgba(0, 255, 148, 0.3);
+  }
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse-glow 2s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* ===== Typewriter Cursor ===== */
+@keyframes blink-caret {
+  0%, 50% { border-color: var(--color-accent); }
+  51%, 100% { border-color: transparent; }
+}
+
+.typewriter-cursor {
+  border-right: 2px solid var(--color-accent);
+  animation: blink-caret 0.8s step-end infinite;
+  padding-right: 2px;
+}
+
+/* ===== Count Up Number ===== */
+.count-up {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* ===== Tag Pills ===== */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ===== Badge Styles ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.badge-nasdaq {
+  background: rgba(0, 255, 148, 0.12);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 255, 148, 0.25);
+}
+
+.badge-nyse {
+  background: rgba(68, 138, 255, 0.12);
+  color: #448AFF;
+  border: 1px solid rgba(68, 138, 255, 0.25);
+}
+
+.badge-psx {
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--color-yellow);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+/* ===== Direction Indicators ===== */
+.direction-bullish {
+  color: var(--color-bullish);
+}
+
+.direction-bearish {
+  color: var(--color-bearish);
+}
+
+.direction-neutral {
+  color: var(--color-neutral-accent);
+}
+
+/* ===== Gauge Glow ===== */
+@keyframes gauge-pulse {
+  0%, 100% { filter: drop-shadow(0 0 3px currentColor); }
+  50% { filter: drop-shadow(0 0 8px currentColor); }
+}
+
+/* ===== Slide Up Animation ===== */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+/* ===== Focus Styles ===== */
+input:focus, button:focus-visible {
+  outline: 1px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: rgba(0, 255, 148, 0.2);
+  color: var(--color-text-primary);
+}
+
+/* ===== Responsive Grid ===== */
+.grid-meter-chart {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+}
+
+.grid-debate {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-meter-chart {
+    grid-template-columns: 1fr;
+  }
+  .grid-debate {
+    grid-template-columns: 1fr;
+  }
+}
+
