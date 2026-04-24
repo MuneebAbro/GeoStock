@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   // Extract the path after /api/finnhub
   const url = new URL(req.url, `https://${req.headers.host}`);
   const finnhubPath = url.pathname.replace(/^\/api\/finnhub/, '') || '/';
-  const targetUrl = `https://finnhub.io/api/v1${finnhubPath}${url.search}`;
+  const targetUrl = `https://finnhub.io${finnhubPath}${url.search}`;
 
   try {
     const response = await fetch(targetUrl, {

@@ -6,7 +6,7 @@
 export default async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const psxPath = url.pathname.replace(/^\/api\/psx/, '') || '/';
-  const targetUrl = `https://psxterminal.com/api${psxPath}${url.search}`;
+  const targetUrl = `https://psxterminal.com${psxPath}${url.search}`;
 
   try {
     const response = await fetch(targetUrl, {
