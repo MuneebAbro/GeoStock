@@ -3,15 +3,21 @@ import { motion } from 'framer-motion';
 import { FEATURES } from './demoData';
 
 function GaugePreview() {
+  const colors = ['#10B981','#34D399','#F59E0B','#F97316','#EF4444'];
   return (
-    <svg width="100" height="65" viewBox="0 0 100 65">
-      <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="rgba(255,59,92,0.3)" strokeWidth="6" strokeLinecap="round" />
-      <path d="M 38 18 A 40 40 0 0 1 90 55" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="6" />
-      <path d="M 66 10 A 40 40 0 0 1 90 55" fill="none" stroke="rgba(0,255,148,0.3)" strokeWidth="6" strokeLinecap="round" />
-      <path d="M 10 55 A 40 40 0 0 1 74 14" fill="none" stroke="#00FF94" strokeWidth="6" strokeLinecap="round"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(0,255,148,0.5))' }} />
-      <text x="50" y="48" textAnchor="middle" fill="#00FF94" fontSize="18" fontWeight="800" fontFamily="var(--font-display)">78</text>
-    </svg>
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '50px' }}>
+      {['CRITICAL','HIGH','MODERATE','LOW','MINIMAL'].map((seg, i) => (
+        <div key={seg} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            width: '22px', height: `${(5 - i) * 8 + 10}px`,
+            background: i === 1 ? colors[i] : `${colors[i]}44`,
+            border: `1px solid ${colors[i]}`,
+            boxShadow: i === 1 ? `0 0 8px ${colors[i]}` : 'none',
+          }} />
+        </div>
+      ))}
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, color: '#34D399', marginLeft: '8px' }}>78</span>
+    </div>
   );
 }
 
@@ -19,21 +25,23 @@ function DebatePreview() {
   return (
     <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
       <div style={{
-        flex: 1, padding: '8px 10px', borderRadius: '6px', fontSize: '10px',
-        background: 'rgba(0,255,148,0.05)', borderLeft: '2px solid var(--color-bullish)',
-        color: 'var(--color-bullish)', fontFamily: 'var(--font-display)', fontWeight: 600,
+        flex: 1, padding: '8px 10px', fontSize: '10px',
+        background: 'rgba(16,185,129,0.05)', borderLeft: '2px solid var(--color-bullish)',
+        color: 'var(--color-bullish)', fontFamily: 'var(--font-display)', fontWeight: 700,
+        letterSpacing: '0.5px',
       }}>
-        🐂 BULL
+        ▲ BULL
         <div style={{ fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '4px', fontWeight: 400, fontFamily: 'var(--font-body)' }}>
           AI demand surge...
         </div>
       </div>
       <div style={{
-        flex: 1, padding: '8px 10px', borderRadius: '6px', fontSize: '10px',
-        background: 'rgba(255,59,92,0.05)', borderLeft: '2px solid var(--color-bearish)',
-        color: 'var(--color-bearish)', fontFamily: 'var(--font-display)', fontWeight: 600,
+        flex: 1, padding: '8px 10px', fontSize: '10px',
+        background: 'rgba(239,68,68,0.05)', borderLeft: '2px solid var(--color-bearish)',
+        color: 'var(--color-bearish)', fontFamily: 'var(--font-display)', fontWeight: 700,
+        letterSpacing: '0.5px',
       }}>
-        🐻 BEAR
+        ▼ BEAR
         <div style={{ fontSize: '9px', color: 'var(--color-text-muted)', marginTop: '4px', fontWeight: 400, fontFamily: 'var(--font-body)' }}>
           Overvaluation risk...
         </div>
@@ -44,20 +52,23 @@ function DebatePreview() {
 
 function GeoPreview() {
   const tags = [
-    { label: 'SANCTIONS', color: '#FF3B5C' },
-    { label: 'TRADE WAR', color: '#FF6B35' },
-    { label: 'POLICY', color: '#00BCD4' },
+    { label: 'SANCTIONS', color: '#EF4444' },
+    { label: 'TRADE WAR', color: '#F97316' },
+    { label: 'POLICY',    color: '#06B6D4' },
   ];
   return (
-    <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-      {tags.map(t => (
-        <span key={t.label} style={{
-          fontSize: '9px', fontFamily: 'var(--font-display)', fontWeight: 600,
-          padding: '3px 8px', borderRadius: '999px', letterSpacing: '0.5px',
-          background: `${t.color}15`, color: t.color, border: `1px solid ${t.color}30`,
-        }}>
-          {t.label}
-        </span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', width: '100%' }}>
+      {tags.map((t, i) => (
+        <div key={t.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: '9px', color: 'var(--color-text-muted)' }}>REF-00{i+1}</span>
+          <span style={{
+            fontSize: '9px', fontFamily: 'var(--font-display)', fontWeight: 600,
+            padding: '2px 8px', letterSpacing: '1px',
+            background: `${t.color}12`, color: t.color, border: `1px solid ${t.color}30`,
+          }}>
+            {t.label}
+          </span>
+        </div>
       ))}
     </div>
   );
@@ -78,54 +89,66 @@ export default function FeaturesSection() {
           fontFamily: 'var(--font-display)', fontSize: '10px', letterSpacing: '3px',
           color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '12px',
         }}>
-          CORE FEATURES
+          CORE CAPABILITIES
         </div>
         <h2 style={{
-          fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800,
-          color: 'var(--color-text-primary)', marginBottom: '8px',
+          fontFamily: 'var(--font-heading)', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800,
+          color: 'var(--color-text-primary)', marginBottom: '8px', letterSpacing: '-0.5px',
         }}>
           What Makes GeoStock Different
         </h2>
-        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '450px', margin: '0 auto' }}>
+        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '450px', margin: '0 auto', fontFamily: 'var(--font-body)' }}>
           AI-powered tools that connect world events to stock performance
         </p>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
         {FEATURES.map((f, i) => {
           const Preview = PREVIEWS[f.preview];
           return (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
-              whileHover={{ borderColor: 'rgba(0,255,148,0.3)', y: -4 }}
+              transition={{ delay: i * 0.12 }}
+              whileHover={{ borderColor: 'var(--color-border-active)', y: -3 }}
               style={{
                 background: 'var(--color-bg-surface)',
                 border: '1px solid var(--color-border)',
-                borderRadius: '14px',
+                position: 'relative',
                 padding: '28px',
-                transition: 'border-color 0.3s, transform 0.3s',
+                transition: 'border-color 0.2s, transform 0.2s',
+                overflow: 'hidden',
               }}
             >
-              <div style={{ fontSize: '32px', marginBottom: '16px' }}>{f.icon}</div>
+              {/* Corner bracket */}
+              <div style={{
+                position: 'absolute', top: 0, left: 0,
+                width: '16px', height: '16px',
+                borderTop: '2px solid var(--color-accent)',
+                borderLeft: '2px solid var(--color-accent)',
+              }} />
+              <div style={{
+                fontFamily: 'var(--font-display)', fontSize: '9px', letterSpacing: '2px',
+                color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '12px',
+              }}>
+                MODULE-0{i+1}
+              </div>
               <h3 style={{
-                fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 700,
-                color: 'var(--color-text-primary)', marginBottom: '8px',
+                fontFamily: 'var(--font-heading)', fontSize: '18px', fontWeight: 700,
+                color: 'var(--color-text-primary)', marginBottom: '8px', letterSpacing: '-0.5px',
               }}>
                 {f.title}
               </h3>
-              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, marginBottom: '18px', fontFamily: 'var(--font-body)' }}>
                 {f.desc}
               </p>
               <div style={{
                 background: 'var(--color-bg-primary)',
-                borderRadius: '8px',
                 padding: '14px',
                 border: '1px solid var(--color-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60px',
               }}>
                 {Preview && <Preview />}
               </div>

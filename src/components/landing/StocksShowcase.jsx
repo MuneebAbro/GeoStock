@@ -2,109 +2,141 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { DEMO_STOCKS } from './demoData';
 
+function MiniSparkline({ up }) {
+  const d = up
+    ? 'M0,24 C10,22 20,18 30,16 C40,14 50,17 60,11 C70,9 80,7 90,4'
+    : 'M0,4 C10,6 20,10 30,12 C40,15 50,11 60,17 C70,20 80,21 90,24';
+  const color = up ? '#10B981' : '#F43F5E';
+  return (
+    <svg width="90" height="28" viewBox="0 0 90 28" fill="none" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id={`sg-${up ? 'u' : 'd'}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={d + ' L90,28 L0,28 Z'} fill={`url(#sg-${up ? 'u' : 'd'})`} />
+      <path d={d} stroke={color} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
 function StockCard({ stock, index, onStockSearch }) {
-  const isPositive = stock.change.startsWith('+');
-  const changeColor = isPositive ? 'var(--color-bullish)' : 'var(--color-bearish)';
-  const sentimentColors = {
-    Bullish: { bg: 'rgba(0,255,148,0.08)', color: '#00FF94', border: 'rgba(0,255,148,0.2)' },
-    Bearish: { bg: 'rgba(255,59,92,0.08)', color: '#FF3B5C', border: 'rgba(255,59,92,0.2)' },
-    Neutral: { bg: 'rgba(255,215,0,0.08)', color: '#FFD700', border: 'rgba(255,215,0,0.2)' },
-  };
-  const sc = sentimentColors[stock.sentiment] || sentimentColors.Neutral;
-  const exchangeBadge = stock.exchange === 'PSX' ? 'badge-psx' : 'badge-nasdaq';
+  const isUp = stock.change.startsWith('+');
+  const changeColor = isUp ? 'var(--color-bullish)' : 'var(--color-bearish)';
+  const sentimentColor = stock.sentiment === 'Bullish' ? 'var(--color-bullish)'
+    : stock.sentiment === 'Bearish' ? 'var(--color-bearish)' : 'var(--color-geo)';
+  const exchangeClass = stock.exchange === 'PSX' ? 'badge-psx'
+    : stock.exchange === 'NYSE' ? 'badge-nyse' : 'badge-nasdaq';
 
   return (
     <motion.div
-      onClick={() => onStockSearch && onStockSearch(stock.ticker)}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.08, duration: 0.4 }}
-      whileHover={{ y: -4, borderColor: 'rgba(0,255,148,0.3)', boxShadow: '0 8px 30px rgba(0,255,148,0.06)' }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      onClick={() => onStockSearch?.(stock.ticker)}
+      className="card"
       style={{
-        background: 'var(--color-bg-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '12px',
-        padding: '20px',
         cursor: 'pointer',
-        transition: 'border-color 0.3s, box-shadow 0.3s',
+        padding: '18px 20px',
+        borderRadius: '14px',
+        willChange: 'transform',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+      {/* Top: ticker + exchange + sparkline */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '16px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700,
+            color: 'var(--color-text-primary)', letterSpacing: '0.5px',
+          }}>
             {stock.ticker}
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '2px' }}>{stock.name}</div>
+          <div style={{
+            fontSize: '11px', color: 'var(--color-text-secondary)',
+            marginTop: '3px', fontFamily: 'var(--font-body)',
+            maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {stock.name}
+          </div>
         </div>
-        <span className={`badge ${exchangeBadge}`}>{stock.exchange}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+          <span className={`badge ${exchangeClass}`}>{stock.exchange}</span>
+          <MiniSparkline up={isUp} />
+        </div>
       </div>
 
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
-        ${stock.price}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+      {/* Price row */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <span style={{
-          fontFamily: 'var(--font-display)', fontSize: '13px', fontWeight: 700, color: changeColor,
+          fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700,
+          color: 'var(--color-text-primary)', letterSpacing: '-0.5px',
         }}>
-          {isPositive ? '▲' : '▼'} {stock.change}
+          {stock.exchange === 'PSX' ? 'PKR ' : '$'}{stock.price}
         </span>
         <span style={{
-          fontSize: '10px', fontFamily: 'var(--font-display)', fontWeight: 600,
-          padding: '3px 8px', borderRadius: '4px', letterSpacing: '0.5px',
-          background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`,
+          fontFamily: 'var(--font-display)', fontSize: '12px', fontWeight: 700,
+          color: changeColor,
         }}>
-          AI: {stock.sentiment}
+          {isUp ? '▲' : '▼'} {stock.change}
         </span>
       </div>
 
-      {/* Mini sparkline */}
-      <svg width="100%" height="30" viewBox="0 0 120 30" style={{ marginTop: '10px', opacity: 0.5 }}>
-        <polyline
-          fill="none"
-          stroke={changeColor}
-          strokeWidth="1.5"
-          points={isPositive
-            ? "0,25 15,22 30,20 45,18 60,22 75,15 90,12 105,8 120,5"
-            : "0,5 15,8 30,10 45,15 60,12 75,18 90,22 105,25 120,27"
-          }
-        />
-      </svg>
+      {/* Sentiment pill */}
+      <div style={{
+        marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '5px',
+        padding: '3px 10px',
+        background: `${sentimentColor}10`,
+        border: `1px solid ${sentimentColor}25`,
+        borderRadius: '99px',
+      }}>
+        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: sentimentColor }} />
+        <span style={{
+          fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 500,
+          color: sentimentColor, letterSpacing: '0.2px',
+        }}>
+          {stock.sentiment}
+        </span>
+      </div>
     </motion.div>
   );
 }
 
 export default function StocksShowcase({ onStockSearch }) {
   return (
-    <section style={{ padding: '60px 20px 40px', maxWidth: '1100px', margin: '0 auto' }}>
+    <section style={{ padding: '56px 24px 40px', maxWidth: '1100px', margin: '0 auto' }}>
       <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        style={{ textAlign: 'center', marginBottom: '40px' }}
+        style={{ marginBottom: '32px' }}
       >
         <div style={{
           fontFamily: 'var(--font-display)', fontSize: '10px', letterSpacing: '3px',
-          color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '12px',
+          color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '8px',
         }}>
-          TOP STOCKS
+          LIVE MARKET FEED
         </div>
         <h2 style={{
-          fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800,
-          color: 'var(--color-text-primary)', marginBottom: '8px',
+          fontFamily: 'var(--font-heading)', fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 700,
+          color: 'var(--color-text-primary)', letterSpacing: '-0.5px', marginBottom: '6px',
         }}>
-          Global & Pakistan Markets
+          Global &amp; Pakistan Markets
         </h2>
-        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', maxWidth: '500px', margin: '0 auto' }}>
-          AI sentiment analysis across NASDAQ, NYSE, and Pakistan Stock Exchange
+        <p style={{
+          fontSize: '14px', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)',
+          maxWidth: '480px',
+        }}>
+          Click any card to run AI geopolitical analysis instantly.
         </p>
       </motion.div>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-        gap: '16px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
+        gap: '12px',
       }}>
         {DEMO_STOCKS.map((stock, i) => (
           <StockCard key={stock.ticker} stock={stock} index={i} onStockSearch={onStockSearch} />

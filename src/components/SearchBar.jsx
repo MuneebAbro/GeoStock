@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchTickers } from '../utils/marketDetector';
 import { moduleLoaded, logInfo } from '../utils/logger';
@@ -20,13 +20,25 @@ function addRecentSearch(item) {
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
 }
 
+// Magnifier SVG
+function SearchIcon({ color = 'currentColor' }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="6.5" cy="6.5" r="5" stroke={color} strokeWidth="1.5" />
+      <line x1="10.5" y1="10.5" x2="14" y2="14" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function SearchBar({ onSearch, loading }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [focused, setFocused] = useState(false);
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (query.length > 0) {
@@ -74,6 +86,7 @@ export default function SearchBar({ onSearch, loading }) {
   }, [suggestions.length]);
 
   const handleFocus = () => {
+    setFocused(true);
     if (query.length === 0) {
       const recent = getRecentSearches();
       if (recent.length > 0) {
@@ -85,37 +98,63 @@ export default function SearchBar({ onSearch, loading }) {
     }
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target) &&
-          inputRef.current && !inputRef.current.contains(e.target)) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         setShowDropdown(false);
+        setFocused(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const isActive = focused || showDropdown;
+
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '680px', margin: '0 auto' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
       <form onSubmit={handleSubmit}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: 'var(--color-bg-surface)',
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          borderColor: showDropdown ? 'var(--color-accent)' : 'var(--color-border)',
-          borderTopLeftRadius: '12px',
-          borderTopRightRadius: '12px',
-          borderBottomLeftRadius: showDropdown ? 0 : '12px',
-          borderBottomRightRadius: showDropdown ? 0 : '12px',
-          padding: '0 20px',
-          transition: 'border-color 0.3s, box-shadow 0.3s',
-          boxShadow: showDropdown ? '0 0 20px rgba(0, 255, 148, 0.08)' : 'none',
-        }}>
-          <span style={{ color: 'var(--color-text-muted)', fontSize: '18px', marginRight: '12px' }}>⌕</span>
+        <motion.div
+          animate={{
+            boxShadow: isActive
+              ? '0 0 0 2px rgba(99,102,241,0.35), 0 8px 32px rgba(99,102,241,0.12)'
+              : '0 2px 12px rgba(0,0,0,0.25)',
+          }}
+          transition={{ duration: 0.2 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: isActive
+              ? 'rgba(18,18,32,0.92)'
+              : 'rgba(14,14,24,0.80)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: `1px solid ${isActive ? 'rgba(99,102,241,0.5)' : 'rgba(99,102,241,0.14)'}`,
+            borderRadius: showDropdown ? '16px 16px 0 0' : '16px',
+            transition: 'background 0.2s, border-color 0.2s, border-radius 0.15s',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Search icon */}
+          <div style={{
+            padding: '0 4px 0 18px', flexShrink: 0, display: 'flex', alignItems: 'center',
+            color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)',
+            transition: 'color 0.2s',
+          }}>
+            {loading ? (
+              <div style={{
+                width: '16px', height: '16px',
+                border: '2px solid rgba(99,102,241,0.25)',
+                borderTopColor: 'var(--color-accent)',
+                borderRadius: '50%',
+                animation: 'spin 0.7s linear infinite',
+              }} />
+            ) : (
+              <SearchIcon color="currentColor" />
+            )}
+          </div>
+
+          {/* Input */}
           <input
             ref={inputRef}
             id="search-input"
@@ -124,7 +163,8 @@ export default function SearchBar({ onSearch, loading }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
-            placeholder="Search stocks... NVDA, AAPL, OGDC, HBL"
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
+            placeholder="Search ticker or company — e.g. NVDA, Apple, OGDC…"
             disabled={loading}
             autoComplete="off"
             style={{
@@ -133,120 +173,186 @@ export default function SearchBar({ onSearch, loading }) {
               border: 'none',
               outline: 'none',
               color: 'var(--color-text-primary)',
-              fontFamily: 'var(--font-display)',
-              fontSize: '15px',
-              padding: '16px 0',
-              letterSpacing: '0.5px',
+              fontFamily: 'var(--font-body)',
+              fontSize: '14px',
+              fontWeight: 400,
+              padding: '14px 12px',
+              letterSpacing: '0.1px',
+              minWidth: 0,
             }}
           />
-          {loading && (
-            <div style={{
-              width: '18px', height: '18px',
-              borderWidth: '2px',
-              borderStyle: 'solid',
-              borderColor: 'var(--color-border)',
-              borderTopColor: 'var(--color-accent)',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
-            }} />
-          )}
-          {query && !loading && (
-            <button
-              type="button"
-              onClick={() => { setQuery(''); setSuggestions([]); setShowDropdown(false); }}
-              style={{
-                background: 'none', border: 'none', color: 'var(--color-text-muted)',
-                cursor: 'pointer', fontSize: '16px', padding: '4px',
-              }}
-            >✕</button>
-          )}
-        </div>
+
+          {/* Clear button */}
+          <AnimatePresence>
+            {query && !loading && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                type="button"
+                onClick={() => { setQuery(''); setSuggestions([]); setShowDropdown(false); inputRef.current?.focus(); }}
+                style={{
+                  background: 'rgba(255,255,255,0.06)', border: 'none',
+                  color: 'var(--color-text-muted)', cursor: 'pointer',
+                  width: '22px', height: '22px', borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '13px', marginRight: '10px', flexShrink: 0,
+                  transition: 'background 0.15s, color 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+              >
+                ✕
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Divider */}
+          <div style={{
+            width: '1px', height: '26px',
+            background: 'rgba(99,102,241,0.2)',
+            flexShrink: 0, marginRight: '8px',
+          }} />
+
+          {/* ANALYZE button — gradient pill */}
+          <motion.button
+            type="submit"
+            disabled={loading}
+            whileHover={!loading ? { scale: 1.03 } : {}}
+            whileTap={!loading ? { scale: 0.97 } : {}}
+            style={{
+              background: loading
+                ? 'rgba(99,102,241,0.4)'
+                : 'linear-gradient(135deg, #6366F1 0%, #818CF8 50%, #A78BFA 100%)',
+              border: 'none',
+              borderRadius: '12px',
+              color: '#fff',
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.3px',
+              padding: '9px 22px',
+              margin: '5px 6px',
+              cursor: loading ? 'wait' : 'pointer',
+              flexShrink: 0,
+              boxShadow: loading ? 'none' : '0 4px 16px rgba(99,102,241,0.35)',
+              transition: 'background 0.2s, box-shadow 0.2s',
+              display: 'flex', alignItems: 'center', gap: '7px',
+            }}
+          >
+            {/* Arrow icon */}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Analyze
+          </motion.button>
+        </motion.div>
       </form>
 
+      {/* Dropdown */}
       <AnimatePresence>
         {showDropdown && suggestions.length > 0 && (
           <motion.div
             ref={dropdownRef}
-            initial={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.14, ease: 'easeOut' }}
             style={{
               position: 'absolute',
               top: '100%',
               left: 0,
               right: 0,
-              background: 'var(--color-bg-surface)',
-              border: '1px solid var(--color-accent)',
-              borderTop: 'none',
-              borderBottomLeftRadius: '12px',
-              borderBottomRightRadius: '12px',
-              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5)',
+              background: 'rgba(14,14,26,0.96)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(99,102,241,0.5)',
+              borderTop: '1px solid rgba(99,102,241,0.15)',
+              borderRadius: '0 0 16px 16px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
               zIndex: 100,
               overflow: 'hidden',
             }}
           >
             {suggestions[0]?.isRecent && (
               <div style={{
-                padding: '8px 16px 4px',
-                fontSize: '10px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--color-text-muted)',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
+                padding: '8px 18px 5px',
+                fontSize: '9px', fontFamily: 'var(--font-display)',
+                color: 'var(--color-text-muted)', letterSpacing: '2px', textTransform: 'uppercase',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                display: 'flex', alignItems: 'center', gap: '6px',
               }}>
-                Recent Searches
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <circle cx="5" cy="5" r="4" stroke="var(--color-text-muted)" strokeWidth="1" />
+                  <path d="M5 3v2l1.5 1.5" stroke="var(--color-text-muted)" strokeWidth="1" strokeLinecap="round" />
+                </svg>
+                RECENT SEARCHES
               </div>
             )}
             {suggestions.map((item, index) => (
-              <div
+              <motion.div
                 key={item.ticker}
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setSelectedIndex(index)}
+                whileHover={{ x: 3 }}
+                transition={{ duration: 0.1 }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '10px 16px',
+                  padding: '10px 18px',
                   cursor: 'pointer',
-                  background: selectedIndex === index ? 'var(--color-bg-elevated)' : 'transparent',
-                  transition: 'background 0.15s',
+                  background: selectedIndex === index
+                    ? 'rgba(99,102,241,0.1)'
+                    : 'transparent',
+                  borderLeft: selectedIndex === index
+                    ? '2px solid var(--color-accent)'
+                    : '2px solid transparent',
+                  transition: 'background 0.1s',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    color: 'var(--color-text-primary)',
-                    minWidth: '60px',
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  {/* Ticker symbol */}
+                  <div style={{
+                    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '13px',
+                    color: selectedIndex === index ? 'var(--color-accent-bright)' : 'var(--color-text-primary)',
+                    minWidth: '64px', letterSpacing: '0.5px',
                   }}>
                     {item.ticker}
-                  </span>
-                  <span style={{
-                    fontSize: '13px',
-                    color: 'var(--color-text-secondary)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    maxWidth: '300px',
+                  </div>
+                  {/* Name */}
+                  <div style={{
+                    fontSize: '12px', color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-body)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '320px',
                   }}>
                     {item.name}
-                  </span>
+                  </div>
                 </div>
                 <span className={`badge badge-${(item.exchange || 'nasdaq').toLowerCase()}`}>
                   {item.exchange || 'NASDAQ'}
                 </span>
-              </div>
+              </motion.div>
             ))}
+
+            {/* Bottom hint */}
+            <div style={{
+              padding: '6px 18px',
+              fontSize: '9px', color: 'var(--color-text-muted)',
+              fontFamily: 'var(--font-display)', letterSpacing: '0.5px',
+              borderTop: '1px solid rgba(255,255,255,0.04)',
+              display: 'flex', gap: '14px',
+            }}>
+              <span><kbd style={{ padding: '1px 4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>↑↓</kbd> navigate</span>
+              <span><kbd style={{ padding: '1px 4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>↵</kbd> select</span>
+              <span><kbd style={{ padding: '1px 4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px' }}>Esc</kbd> close</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

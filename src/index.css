@@ -1,149 +1,186 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
-/* ===== Bloomberg Terminal Theme ===== */
+/* ========================================================
+   GEOSTOCK — Modern Dark Design System
+   All animations use transform/opacity only (GPU-only, no layout thrash)
+   ======================================================== */
 @theme {
-  --color-bg-primary: #0A0A0F;
-  --color-bg-surface: #111118;
-  --color-bg-elevated: #191922;
-  --color-border: #1E1E2E;
-  --color-border-glow: #2A2A3E;
-  --color-accent: #00FF94;
-  --color-bullish: #00FF94;
-  --color-bearish: #FF3B5C;
-  --color-neutral-accent: #A0A0B0;
-  --color-text-primary: #E8E8F0;
-  --color-text-secondary: #6B6B80;
-  --color-text-muted: #44445A;
-  --color-yellow: #FFD700;
-  --color-yellow-dim: #B8960F;
-  --color-tag-trade-war: #FF6B35;
-  --color-tag-sanctions: #FF3B5C;
-  --color-tag-regulation: #7B68EE;
-  --color-tag-conflict: #FF1744;
-  --color-tag-election: #448AFF;
-  --color-tag-policy: #00BCD4;
-  --color-tag-supply-chain: #FF9800;
-  --color-tag-currency: #FFD700;
-  --font-display: 'JetBrains Mono', monospace;
-  --font-body: 'Inter', sans-serif;
+  /* ── Backgrounds ── */
+  --color-bg-primary:   #080812;
+  --color-bg-surface:   #0F0F1C;
+  --color-bg-elevated:  #161628;
+  --color-bg-glass:     rgba(15,15,28,0.6);
+
+  /* ── Borders ── */
+  --color-border:        rgba(255,255,255,0.06);
+  --color-border-active: rgba(99,102,241,0.3);
+  --color-border-glow:   rgba(99,102,241,0.25);
+
+  /* ── Indigo Accent ── */
+  --color-accent:        #6366F1;
+  --color-accent-bright: #818CF8;
+  --color-accent-dim:    #4F46E5;
+  --color-accent-glow:   rgba(99,102,241,0.18);
+
+  /* ── Amber Geo ── */
+  --color-geo:        #F59E0B;
+  --color-geo-bright: #FCD34D;
+  --color-geo-glow:   rgba(245,158,11,0.15);
+
+  /* ── Sentiment ── */
+  --color-bullish: #10B981;
+  --color-bearish: #F43F5E;
+  --color-neutral: #6B7280;
+
+  /* ── Text ── */
+  --color-text-primary:   #EEEEF8;
+  --color-text-secondary: #8888A8;
+  --color-text-muted:     #3E3E58;
+
+  /* ── Legacy compat ── */
+  --color-neutral-accent:   #8888A8;
+  --color-yellow:           #F59E0B;
+  --color-yellow-dim:       #B45309;
+  --color-tag-trade-war:    #F97316;
+  --color-tag-sanctions:    #F43F5E;
+  --color-tag-regulation:   #8B5CF6;
+  --color-tag-conflict:     #DC2626;
+  --color-tag-election:     #3B82F6;
+  --color-tag-policy:       #06B6D4;
+  --color-tag-supply-chain: #F59E0B;
+  --color-tag-currency:     #FCD34D;
+
+  /* ── Typography ── */
+  --font-display: 'IBM Plex Mono', monospace;
+  --font-heading: 'Poppins', sans-serif;
+  --font-body:    'Inter', sans-serif;
 }
 
-/* ===== Base Styles ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+/* ── Reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-bg-primary);
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* ===== Scanline Overlay ===== */
+/* ── Global radial glow (fixed, cheap to render) ── */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 80%, rgba(245,158,11,0.05) 0%, transparent 50%);
   pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 255, 148, 0.015) 2px,
-    rgba(0, 255, 148, 0.015) 4px
-  );
+  z-index: 0;
+  will-change: auto;
 }
 
-/* ===== Scrollbar ===== */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.25); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.45); }
+
+/* ── Selection ── */
+::selection { background: rgba(99,102,241,0.22); color: var(--color-text-primary); }
+
+/* ── Focus ── */
+input:focus, button:focus-visible {
+  outline: 2px solid rgba(99,102,241,0.5);
+  outline-offset: 2px;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* ===== Card Base ===== */
+/* ========================================================
+   CARD — Glassmorphism panel
+   ======================================================== */
 .card {
-  background: var(--color-bg-surface);
+  background: rgba(15,15,28,0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  /* GPU-only transitions */
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow:
+    0 1px 0 0 rgba(255,255,255,0.04) inset,
+    0 8px 32px rgba(0,0,0,0.35);
+}
+
+/* Subtle top-edge highlight (no pseudo element corner bracket = cleaner) */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .card:hover {
-  border-color: var(--color-border-glow);
-  box-shadow: 0 0 20px rgba(0, 255, 148, 0.03);
+  border-color: var(--color-border-active);
+  box-shadow:
+    0 1px 0 0 rgba(255,255,255,0.06) inset,
+    0 0 0 1px rgba(99,102,241,0.15),
+    0 16px 48px rgba(0,0,0,0.45);
 }
 
-/* ===== Skeleton Shimmer ===== */
+/* ========================================================
+   SKELETON
+   ======================================================== */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--color-bg-surface) 25%,
-    var(--color-bg-elevated) 50%,
-    var(--color-bg-surface) 75%
+    rgba(255,255,255,0.03) 25%,
+    rgba(99,102,241,0.07)  50%,
+    rgba(255,255,255,0.03) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 6px;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
 }
 
-/* ===== Pulse Animation for Live Dot ===== */
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 4px var(--color-accent);
-  }
-  50% {
-    opacity: 0.5;
-    box-shadow: 0 0 12px var(--color-accent), 0 0 24px rgba(0, 255, 148, 0.3);
-  }
+/* ========================================================
+   LIVE DOT
+   ======================================================== */
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1);   opacity: 1; box-shadow: 0 0 0 0 rgba(99,102,241,0.6); }
+  50%       { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 0 5px rgba(99,102,241,0); }
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--color-accent);
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-dot 2s ease-in-out infinite;
   display: inline-block;
+  flex-shrink: 0;
+  will-change: transform, opacity;
 }
 
-/* ===== Typewriter Cursor ===== */
+/* ========================================================
+   TYPEWRITER CURSOR
+   ======================================================== */
 @keyframes blink-caret {
-  0%, 50% { border-color: var(--color-accent); }
-  51%, 100% { border-color: transparent; }
+  0%, 49% { border-color: var(--color-accent); }
+  50%, 100% { border-color: transparent; }
 }
 
 .typewriter-cursor {
@@ -152,108 +189,121 @@ body::before {
   padding-right: 2px;
 }
 
-/* ===== Count Up Number ===== */
+/* ========================================================
+   COUNT-UP NUMBERS
+   ======================================================== */
 .count-up {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
 }
 
-/* ===== Tag Pills ===== */
+/* ========================================================
+   TAG PILLS
+   ======================================================== */
 .tag-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
+  border-radius: 99px;
+  font-size: 10px;
   font-weight: 600;
   font-family: var(--font-display);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
 }
 
-/* ===== Badge Styles ===== */
+/* ========================================================
+   BADGES
+   ======================================================== */
 .badge {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
+  border-radius: 6px;
+  font-size: 9px;
   font-weight: 700;
   font-family: var(--font-display);
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
 .badge-nasdaq {
-  background: rgba(0, 255, 148, 0.12);
-  color: var(--color-accent);
-  border: 1px solid rgba(0, 255, 148, 0.25);
+  background: rgba(99,102,241,0.12);
+  color: var(--color-accent-bright);
+  border: 1px solid rgba(99,102,241,0.22);
 }
-
 .badge-nyse {
-  background: rgba(68, 138, 255, 0.12);
-  color: #448AFF;
-  border: 1px solid rgba(68, 138, 255, 0.25);
+  background: rgba(59,130,246,0.12);
+  color: #60A5FA;
+  border: 1px solid rgba(59,130,246,0.22);
 }
-
 .badge-psx {
-  background: rgba(255, 215, 0, 0.12);
-  color: var(--color-yellow);
-  border: 1px solid rgba(255, 215, 0, 0.25);
+  background: rgba(245,158,11,0.12);
+  color: var(--color-geo-bright);
+  border: 1px solid rgba(245,158,11,0.22);
 }
 
-/* ===== Direction Indicators ===== */
-.direction-bullish {
-  color: var(--color-bullish);
-}
+/* ========================================================
+   DIRECTION COLOURS
+   ======================================================== */
+.direction-bullish { color: var(--color-bullish); }
+.direction-bearish { color: var(--color-bearish); }
+.direction-neutral { color: var(--color-neutral); }
 
-.direction-bearish {
-  color: var(--color-bearish);
-}
-
-.direction-neutral {
-  color: var(--color-neutral-accent);
-}
-
-/* ===== Gauge Glow ===== */
-@keyframes gauge-pulse {
-  0%, 100% { filter: drop-shadow(0 0 3px currentColor); }
-  50% { filter: drop-shadow(0 0 8px currentColor); }
-}
-
-/* ===== Slide Up Animation ===== */
+/* ========================================================
+   SLIDE-UP UTILITY
+   ======================================================== */
 @keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.slide-up { animation: slide-up 0.35s ease-out forwards; }
+
+/* ========================================================
+   TICKER MARQUEE
+   ======================================================== */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.slide-up {
-  animation: slide-up 0.5s ease-out forwards;
+.ticker-strip {
+  overflow: hidden;
+  white-space: nowrap;
+  background: rgba(8,8,18,0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  position: relative;
+  z-index: 49;
 }
 
-/* ===== Focus Styles ===== */
-input:focus, button:focus-visible {
-  outline: 1px solid var(--color-accent);
-  outline-offset: 2px;
+.ticker-strip-inner {
+  display: inline-flex;
+  animation: ticker-scroll 70s linear infinite;
+  will-change: transform;
 }
 
-/* ===== Selection ===== */
-::selection {
-  background: rgba(0, 255, 148, 0.2);
-  color: var(--color-text-primary);
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 22px;
+  border-right: 1px solid var(--color-border);
 }
 
-/* ===== Responsive Grid ===== */
+.ticker-sep { color: var(--color-text-muted); }
+
+/* ========================================================
+   RESPONSIVE GRIDS
+   ======================================================== */
 .grid-meter-chart {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 360px 1fr;
   gap: 16px;
 }
 
@@ -263,12 +313,92 @@ input:focus, button:focus-visible {
   gap: 20px;
 }
 
-@media (max-width: 768px) {
-  .grid-meter-chart {
-    grid-template-columns: 1fr;
-  }
-  .grid-debate {
-    grid-template-columns: 1fr;
-  }
+/* ========================================================
+   THREAT BAR GLOW (GPU-only — opacity)
+   ======================================================== */
+@keyframes segment-glow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
 }
 
+.threat-segment-active {
+  animation: segment-glow 2s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* ========================================================
+   GAUGE GLOW FILTER
+   ======================================================== */
+@keyframes gauge-pulse {
+  0%, 100% { filter: drop-shadow(0 0 3px currentColor); }
+  50%       { filter: drop-shadow(0 0 9px currentColor); }
+}
+
+/* ========================================================
+   WORLD MAP RIPPLE PINS
+   ======================================================== */
+@keyframes pin-ripple {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+.map-pin-ripple   { animation: pin-ripple 2s ease-out infinite; will-change: transform, opacity; }
+.map-pin-ripple-2 { animation: pin-ripple 2s ease-out infinite 0.7s; will-change: transform, opacity; }
+
+/* ========================================================
+   SCAN (terminal input effect)
+   ======================================================== */
+@keyframes scan {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* ========================================================
+   BUTTON UTILITY
+   ======================================================== */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 28px;
+  background: linear-gradient(135deg, #6366F1, #818CF8);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(99,102,241,0.45);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ========================================================
+   GLASS SURFACE (re-usable)
+   ======================================================== */
+.glass {
+  background: rgba(15,15,28,0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+/* ========================================================
+   RESPONSIVE
+   ======================================================== */
+@media (max-width: 900px) {
+  .grid-meter-chart { grid-template-columns: 1fr; }
+  .grid-debate      { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .card { padding: 16px; border-radius: 12px; }
+}
