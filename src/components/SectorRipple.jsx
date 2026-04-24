@@ -31,7 +31,8 @@ export default function SectorRipple({ sectorRipple, onStockSelect }) {
                 logInfo('SectorRipple', 'ripple stock clicked', { ticker: stock.ticker });
                 onStockSelect?.(stock.ticker);
               }}
-              style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)',
+              style={{ background: 'var(--color-bg-elevated)', borderWidth: '1px', borderStyle: 'solid',
+                borderColor: 'var(--color-border)',
                 borderRadius: '10px', padding: '16px', cursor: 'pointer', transition: 'border-color 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px',

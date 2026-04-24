@@ -104,16 +104,16 @@ export default function SearchBar({ onSearch, loading }) {
           display: 'flex',
           alignItems: 'center',
           background: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '12px',
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderColor: showDropdown ? 'var(--color-accent)' : 'var(--color-border)',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          borderBottomLeftRadius: showDropdown ? 0 : '12px',
+          borderBottomRightRadius: showDropdown ? 0 : '12px',
           padding: '0 20px',
           transition: 'border-color 0.3s, box-shadow 0.3s',
-          ...(showDropdown ? {
-            borderColor: 'var(--color-accent)',
-            boxShadow: '0 0 20px rgba(0, 255, 148, 0.08)',
-            borderBottomLeftRadius: 0,
-            borderBottomRightRadius: 0,
-          } : {}),
+          boxShadow: showDropdown ? '0 0 20px rgba(0, 255, 148, 0.08)' : 'none',
         }}>
           <span style={{ color: 'var(--color-text-muted)', fontSize: '18px', marginRight: '12px' }}>⌕</span>
           <input
@@ -142,7 +142,9 @@ export default function SearchBar({ onSearch, loading }) {
           {loading && (
             <div style={{
               width: '18px', height: '18px',
-              border: '2px solid var(--color-border)',
+              borderWidth: '2px',
+              borderStyle: 'solid',
+              borderColor: 'var(--color-border)',
               borderTopColor: 'var(--color-accent)',
               borderRadius: '50%',
               animation: 'spin 0.8s linear infinite',

@@ -70,15 +70,14 @@ export async function runFullAnalysis(ticker, timeframe = '1 week') {
 
   const newsFormatted = formatNewsForPrompt(news || []);
 
-  // Step 3: Run all 4 Groq calls in parallel
+  // Step 3: Run Groq calls sequentially to avoid rate limits
+  // (Groq free tier has strict TPM limits — parallel calls cause "Failed to fetch")
   let potentialScore, debate, geoReport, sectorRipple;
   try {
-    [potentialScore, debate, geoReport, sectorRipple] = await Promise.all([
-      generatePotentialScore(stockData, newsFormatted, timeframe),
-      generateBullBearDebate(stockData, newsFormatted, timeframe, 50), // initial score placeholder
-      generateGeopoliticalReport(stockData, newsFormatted),
-      generateSectorRipple(stockData, resolvedSector),
-    ]);
+    potentialScore = await generatePotentialScore(stockData, newsFormatted, timeframe);
+    debate = await generateBullBearDebate(stockData, newsFormatted, timeframe, potentialScore?.potential_score || 50);
+    geoReport = await generateGeopoliticalReport(stockData, newsFormatted);
+    sectorRipple = await generateSectorRipple(stockData, resolvedSector);
   } catch (err) {
     logError('analysisOrchestrator', 'ai analysis failed', err);
     throw new Error('AI analysis failed. Please try again.');

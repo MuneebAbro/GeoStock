@@ -1,4 +1,4 @@
-import { moduleLoaded, logError, logInfo } from '../utils/logger';
+import { moduleLoaded, logError, logInfo, logWarn } from '../utils/logger';
 
 moduleLoaded('groqService');
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
@@ -65,44 +65,74 @@ function repairJSON(text) {
 }
 
 /**
- * Call the Groq API with a prompt and get JSON response
+ * Small delay helper to space out API calls
  */
-async function callGroq(prompt, maxTokens = 4096) {
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Call the Groq API with a prompt and get JSON response
+ * Includes retry logic with exponential backoff for intermittent failures
+ */
+async function callGroq(prompt, maxTokens = 4096, retries = 3) {
   if (!GROQ_API_KEY) {
     throw new Error('Missing VITE_GROQ_API_KEY in environment');
   }
 
-  logInfo('groqService', 'groq request started', { maxTokens, model: GROQ_MODEL });
-  const response = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      max_tokens: maxTokens,
-      response_format: { type: 'json_object' },
-    }),
-  });
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      logInfo('groqService', `groq request attempt ${attempt}/${retries}`, { maxTokens, model: GROQ_MODEL });
+      const response = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: maxTokens,
+          response_format: { type: 'json_object' },
+        }),
+      });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    logError('groqService', 'groq response not ok', { status: response.status, errText });
-    throw new Error(`Groq API error ${response.status}: ${errText}`);
+      if (response.status === 429) {
+        // Rate limited — wait and retry
+        const waitMs = 2000 * attempt;
+        logWarn('groqService', `rate limited, waiting ${waitMs}ms before retry`);
+        await delay(waitMs);
+        continue;
+      }
+
+      if (!response.ok) {
+        const errText = await response.text();
+        logError('groqService', 'groq response not ok', { status: response.status, errText });
+        throw new Error(`Groq API error ${response.status}: ${errText}`);
+      }
+
+      const data = await response.json();
+      const text = data?.choices?.[0]?.message?.content;
+      if (!text) {
+        logError('groqService', 'missing groq text payload', JSON.stringify(data).slice(0, 500));
+        throw new Error('No text response from Groq');
+      }
+
+      logInfo('groqService', 'groq request completed');
+      return repairJSON(text);
+    } catch (err) {
+      lastError = err;
+      if (attempt < retries) {
+        const waitMs = 1000 * attempt;
+        logWarn('groqService', `attempt ${attempt} failed (${err.message}), retrying in ${waitMs}ms`);
+        await delay(waitMs);
+      }
+    }
   }
 
-  const data = await response.json();
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text) {
-    logError('groqService', 'missing groq text payload', JSON.stringify(data).slice(0, 500));
-    throw new Error('No text response from Groq');
-  }
-
-  logInfo('groqService', 'groq request completed');
-  return repairJSON(text);
+  throw lastError;
 }
 
 /**
