@@ -3,8 +3,9 @@ import { moduleLoaded, logInfo, logWarn } from '../utils/logger';
 
 moduleLoaded('stockService');
 
-const FINNHUB_BASE = '/finnhub/api/v1';
-const PSX_TERMINAL_BASE = '/psx-api/api';
+const isDev = import.meta.env.DEV;
+const FINNHUB_BASE = isDev ? '/finnhub/api/v1' : '/api/finnhub/api/v1';
+const PSX_TERMINAL_BASE = isDev ? '/psx-api/api' : '/api/psx/api';
 const FINNHUB_KEY = import.meta.env.VITE_FINNHUB_KEY;
 const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
 
@@ -87,7 +88,8 @@ export async function getGlobalDailyHistory(ticker) {
   const now = Math.floor(Date.now() / 1000);
   const thirtyDaysAgo = now - (30 * 24 * 60 * 60);
 
-  const { data } = await axios.get(`/yahoo-finance/v8/finance/chart/${ticker}`, {
+  const yahooBase = isDev ? '/yahoo-finance' : '/api/yahoo-finance';
+  const { data } = await axios.get(`${yahooBase}/v8/finance/chart/${ticker}`, {
     params: {
       interval: '1d',
       period1: thirtyDaysAgo,

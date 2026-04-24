@@ -76,18 +76,14 @@ export async function fetchNewsAPIArticles(query, pageSize = 15) {
     const isDev = import.meta.env.DEV;
     const baseUrl = isDev
       ? '/newsapi/v2/everything'
-      : `https://api.allorigins.win/raw?url=${encodeURIComponent(
-          `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`
-        )}`;
+      : '/api/newsapi/v2/everything';
 
-    const params = isDev
-      ? {
-          q: query,
-          sortBy: 'publishedAt',
-          pageSize,
-          apiKey: NEWS_API_KEY,
-        }
-      : {};
+    const params = {
+      q: query,
+      sortBy: 'publishedAt',
+      pageSize,
+      apiKey: NEWS_API_KEY,
+    };
 
     const { data } = await axios.get(baseUrl, { params });
     const responseData = typeof data === 'string' ? JSON.parse(data) : data;

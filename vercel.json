@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/finnhub/(.*)", "destination": "/api/finnhub" },
+    { "source": "/api/yahoo-finance/(.*)", "destination": "/api/yahoo-finance" },
+    { "source": "/api/psx/(.*)", "destination": "/api/psx" },
+    { "source": "/api/newsapi/(.*)", "destination": "/api/newsapi" }
+  ]
+}
