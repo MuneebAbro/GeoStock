@@ -1,3 +1,7 @@
+import { moduleLoaded, logInfo } from './logger';
+
+moduleLoaded('marketDetector');
+
 // Top 50 PSX tickers with company names and sectors
 const PSX_TICKERS = {
   OGDC: { name: 'Oil & Gas Development Company', sector: 'Oil & Gas' },
@@ -93,6 +97,7 @@ const POPULAR_GLOBAL_TICKERS = {
  */
 export function detectMarket(ticker) {
   const normalized = ticker.toUpperCase().trim();
+  logInfo('marketDetector', 'detectMarket called', { ticker: normalized });
 
   if (PSX_TICKERS[normalized]) {
     return {
@@ -131,6 +136,7 @@ export function detectMarket(ticker) {
  */
 export function searchTickers(query) {
   if (!query || query.length < 1) return [];
+  logInfo('marketDetector', 'searchTickers called', { query });
   const q = query.toUpperCase().trim();
   const results = [];
 

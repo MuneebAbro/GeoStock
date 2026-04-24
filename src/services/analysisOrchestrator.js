@@ -11,7 +11,10 @@ import {
   generateBullBearDebate,
   generateGeopoliticalReport,
   generateSectorRipple,
-} from './geminiService';
+} from './groqService';
+import { moduleLoaded, logError, logInfo } from '../utils/logger';
+
+moduleLoaded('analysisOrchestrator');
 
 /**
  * Run the full analysis pipeline for a given ticker
@@ -20,6 +23,7 @@ import {
  * @returns {Object} Complete analysis result
  */
 export async function runFullAnalysis(ticker, timeframe = '1 week') {
+  logInfo('analysisOrchestrator', 'full analysis started', { ticker, timeframe });
   const market = detectMarket(ticker);
   const { isPSX, companyName, sector, exchange } = market;
 
@@ -44,7 +48,7 @@ export async function runFullAnalysis(ticker, timeframe = '1 week') {
       ]);
     }
   } catch (err) {
-    console.error('Data fetching error:', err);
+    logError('analysisOrchestrator', 'data fetching failed', err);
     throw new Error(`Failed to fetch data for ${ticker}. ${err.message}`);
   }
 
@@ -66,7 +70,7 @@ export async function runFullAnalysis(ticker, timeframe = '1 week') {
 
   const newsFormatted = formatNewsForPrompt(news || []);
 
-  // Step 3: Run all 4 Gemini calls in parallel
+  // Step 3: Run all 4 Groq calls in parallel
   let potentialScore, debate, geoReport, sectorRipple;
   try {
     [potentialScore, debate, geoReport, sectorRipple] = await Promise.all([
@@ -76,10 +80,11 @@ export async function runFullAnalysis(ticker, timeframe = '1 week') {
       generateSectorRipple(stockData, resolvedSector),
     ]);
   } catch (err) {
-    console.error('AI analysis error:', err);
+    logError('analysisOrchestrator', 'ai analysis failed', err);
     throw new Error('AI analysis failed. Please try again.');
   }
 
+  logInfo('analysisOrchestrator', 'full analysis completed', { ticker, timeframe });
   return {
     market,
     quote,
@@ -106,5 +111,6 @@ export async function runFullAnalysis(ticker, timeframe = '1 week') {
  * Reuses existing data to avoid hitting API limits
  */
 export async function runTimeframeAnalysis(stockData, newsFormatted, timeframe) {
+  logInfo('analysisOrchestrator', 'timeframe-only analysis started', { ticker: stockData?.ticker, timeframe });
   return generatePotentialScore(stockData, newsFormatted, timeframe);
 }

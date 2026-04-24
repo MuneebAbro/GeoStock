@@ -1,6 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { GEOPOLITICAL_TAGS, IMPACT_DIRECTIONS, IMPACT_MAGNITUDES } from '../constants/geopoliticalTags';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('GeopoliticalReport');
 
 function NewsTag({ tag }) {
   const tagInfo = GEOPOLITICAL_TAGS[tag] || { color: '#A0A0B0', icon: '📰' };

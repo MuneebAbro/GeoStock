@@ -1,3 +1,7 @@
+import { moduleLoaded } from './logger';
+
+moduleLoaded('scoreCalculator');
+
 /**
  * Get color zone classification from a potential score
  * @param {number} score - Score between 0-100

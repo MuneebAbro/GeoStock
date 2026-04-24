@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { PSX_NEWS_KEYWORDS } from '../constants/geopoliticalTags';
+import { moduleLoaded, logInfo, logWarn } from '../utils/logger';
+
+moduleLoaded('newsService');
 
 const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 const GDELT_BASE = 'https://api.gdeltproject.org/api/v2/doc/doc';
@@ -24,6 +27,7 @@ function buildQuery(ticker, companyName, sector, isPSX) {
  * Primary news source
  */
 export async function fetchGDELTNews(query, maxRecords = 20) {
+  logInfo('newsService', 'fetchGDELTNews started', { query, maxRecords });
   try {
     const { data } = await axios.get(GDELT_BASE, {
       params: {
@@ -37,7 +41,7 @@ export async function fetchGDELTNews(query, maxRecords = 20) {
 
     if (!data || !data.articles) return [];
 
-    return data.articles.map(article => ({
+    const articles = data.articles.map(article => ({
       title: article.title || '',
       url: article.url || '',
       source: article.domain || article.source?.domain || 'Unknown',
@@ -52,8 +56,10 @@ export async function fetchGDELTNews(query, maxRecords = 20) {
       snippet: article.title || '',
       sourceAPI: 'GDELT',
     })).filter(a => a.title.length > 10);
+    logInfo('newsService', 'fetchGDELTNews completed', { count: articles.length });
+    return articles;
   } catch (err) {
-    console.warn('GDELT API error:', err.message);
+    logWarn('newsService', 'GDELT API error', err.message);
     return [];
   }
 }
@@ -63,6 +69,7 @@ export async function fetchGDELTNews(query, maxRecords = 20) {
  * Uses Vite dev proxy in development, CORS proxy in production
  */
 export async function fetchNewsAPIArticles(query, pageSize = 15) {
+  logInfo('newsService', 'fetchNewsAPIArticles started', { query, pageSize });
   if (!NEWS_API_KEY) return [];
 
   try {
@@ -87,7 +94,7 @@ export async function fetchNewsAPIArticles(query, pageSize = 15) {
 
     if (!responseData.articles) return [];
 
-    return responseData.articles.map(article => ({
+    const articles = responseData.articles.map(article => ({
       title: article.title || '',
       url: article.url || '',
       source: article.source?.name || 'Unknown',
@@ -95,8 +102,10 @@ export async function fetchNewsAPIArticles(query, pageSize = 15) {
       snippet: article.description || '',
       sourceAPI: 'NewsAPI',
     })).filter(a => a.title && a.title !== '[Removed]');
+    logInfo('newsService', 'fetchNewsAPIArticles completed', { count: articles.length });
+    return articles;
   } catch (err) {
-    console.warn('NewsAPI error:', err.message);
+    logWarn('newsService', 'NewsAPI error', err.message);
     return [];
   }
 }
@@ -105,6 +114,7 @@ export async function fetchNewsAPIArticles(query, pageSize = 15) {
  * Fetch all news from both sources, merged and deduplicated
  */
 export async function fetchAllNews(ticker, companyName, sector, isPSX = false) {
+  logInfo('newsService', 'fetchAllNews started', { ticker, companyName, sector, isPSX });
   const query = buildQuery(ticker, companyName, sector, isPSX);
 
   // Also search for PSX-specific news if applicable
@@ -133,5 +143,7 @@ export async function fetchAllNews(ticker, companyName, sector, isPSX = false) {
   });
 
   // Sort by date, newest first
-  return deduped.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sorted = deduped.sort((a, b) => new Date(b.date) - new Date(a.date));
+  logInfo('newsService', 'fetchAllNews completed', { ticker, count: sorted.length });
+  return sorted;
 }

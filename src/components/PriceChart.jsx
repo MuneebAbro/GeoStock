@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Bar, BarChart, Cell, ReferenceLine } from 'recharts';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('PriceChart');
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;

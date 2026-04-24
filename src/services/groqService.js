@@ -1,22 +1,9 @@
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+import { moduleLoaded, logError, logInfo } from '../utils/logger';
 
-/**
- * Extract JSON text from Gemini response parts (handles thinking models)
- */
-function extractResponseText(data) {
-  const parts = data.candidates?.[0]?.content?.parts;
-  if (!parts || parts.length === 0) return null;
-
-  // Gemini thinking models may return multiple parts - find the text part (not thought)
-  for (const part of parts) {
-    if (part.text && !part.thought) {
-      return part.text;
-    }
-  }
-  // Fallback: return last part's text
-  return parts[parts.length - 1]?.text || null;
-}
+moduleLoaded('groqService');
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 /**
  * Attempt to repair truncated JSON
@@ -31,12 +18,23 @@ function repairJSON(text) {
   } catch {
     // Try to fix common truncation issues
     // Count open vs close braces/brackets
-    let braces = 0, brackets = 0;
-    let inString = false, escaped = false;
+    let braces = 0;
+    let brackets = 0;
+    let inString = false;
+    let escaped = false;
     for (const ch of s) {
-      if (escaped) { escaped = false; continue; }
-      if (ch === '\\') { escaped = true; continue; }
-      if (ch === '"') { inString = !inString; continue; }
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = !inString;
+        continue;
+      }
       if (inString) continue;
       if (ch === '{') braces++;
       if (ch === '}') braces--;
@@ -48,8 +46,14 @@ function repairJSON(text) {
     if (inString) s += '"';
 
     // Close open brackets and braces
-    while (brackets > 0) { s += ']'; brackets--; }
-    while (braces > 0) { s += '}'; braces--; }
+    while (brackets > 0) {
+      s += ']';
+      brackets--;
+    }
+    while (braces > 0) {
+      s += '}';
+      braces--;
+    }
 
     try {
       return JSON.parse(s);
@@ -61,37 +65,43 @@ function repairJSON(text) {
 }
 
 /**
- * Call the Gemini API with a prompt and get JSON response
+ * Call the Groq API with a prompt and get JSON response
  */
-async function callGemini(prompt, maxTokens = 4096) {
-  const response = await fetch(GEMINI_URL, {
+async function callGroq(prompt, maxTokens = 4096) {
+  if (!GROQ_API_KEY) {
+    throw new Error('Missing VITE_GROQ_API_KEY in environment');
+  }
+
+  logInfo('groqService', 'groq request started', { maxTokens, model: GROQ_MODEL });
+  const response = await fetch(GROQ_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`,
+    },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        maxOutputTokens: maxTokens,
-        temperature: 0.7,
-        thinkingConfig: {
-          thinkingBudget: 0,
-        },
-      },
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: maxTokens,
+      response_format: { type: 'json_object' },
     }),
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Gemini API error ${response.status}: ${errText}`);
+    logError('groqService', 'groq response not ok', { status: response.status, errText });
+    throw new Error(`Groq API error ${response.status}: ${errText}`);
   }
 
   const data = await response.json();
-  const text = extractResponseText(data);
+  const text = data?.choices?.[0]?.message?.content;
   if (!text) {
-    console.error('Gemini response structure:', JSON.stringify(data).slice(0, 500));
-    throw new Error('No text response from Gemini');
+    logError('groqService', 'missing groq text payload', JSON.stringify(data).slice(0, 500));
+    throw new Error('No text response from Groq');
   }
 
+  logInfo('groqService', 'groq request completed');
   return repairJSON(text);
 }
 
@@ -130,9 +140,9 @@ Respond ONLY in this exact JSON format:
 }`;
 
   try {
-    return await callGemini(prompt, 2048);
+    return await callGroq(prompt, 2048);
   } catch (err) {
-    console.error('Potential score generation failed:', err);
+    logError('groqService', 'potential score generation failed', err);
     return {
       potential_score: 50,
       timeframe,
@@ -178,9 +188,9 @@ Generate a structured debate with exactly this JSON format:
 }`;
 
   try {
-    return await callGemini(prompt, 4096);
+    return await callGroq(prompt, 4096);
   } catch (err) {
-    console.error('Debate generation failed:', err);
+    logError('groqService', 'debate generation failed', err);
     return {
       bull_arguments: [
         { title: 'Market Momentum', argument: 'Analysis temporarily unavailable.' },
@@ -236,9 +246,9 @@ Write a geopolitical analysis report in this exact JSON format:
 Return 5-8 tagged news items and exactly 3 analysis paragraphs.`;
 
   try {
-    return await callGemini(prompt, 4096);
+    return await callGroq(prompt, 4096);
   } catch (err) {
-    console.error('Geo report generation failed:', err);
+    logError('groqService', 'geo report generation failed', err);
     return {
       tagged_news: [],
       analysis_paragraphs: [
@@ -280,9 +290,9 @@ Respond ONLY in this JSON format:
 Return exactly 4 stocks.`;
 
   try {
-    return await callGemini(prompt, 2048);
+    return await callGroq(prompt, 2048);
   } catch (err) {
-    console.error('Sector ripple generation failed:', err);
+    logError('groqService', 'sector ripple generation failed', err);
     return { ripple_stocks: [] };
   }
 }

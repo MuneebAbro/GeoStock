@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import LiveDot from './LiveDot';
 import { formatPercentage, formatLargeNumber, formatPrice } from '../utils/scoreCalculator';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('StockHeader');
 
 function AnimatedNumber({ value, prefix = '', suffix = '', decimals = 2, duration = 1200 }) {
   const [display, setDisplay] = useState(0);

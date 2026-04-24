@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { runFullAnalysis, runTimeframeAnalysis } from '../services/analysisOrchestrator';
 import { formatNewsForPrompt } from '../utils/newsFormatter';
+import { moduleLoaded, logError, logInfo } from '../utils/logger';
+
+moduleLoaded('useAnalysis');
 
 /**
  * Main hook that orchestrates the entire analysis flow
@@ -14,6 +17,7 @@ export function useAnalysis() {
 
   const analyze = useCallback(async (ticker, timeframe = '1 week') => {
     if (!ticker) return;
+    logInfo('useAnalysis', 'analysis started', { ticker, timeframe });
 
     // Abort previous analysis
     if (abortRef.current) {
@@ -29,10 +33,12 @@ export function useAnalysis() {
     try {
       const result = await runFullAnalysis(ticker, timeframe);
       if (!thisRequest.aborted) {
+        logInfo('useAnalysis', 'analysis completed', { ticker, timeframe });
         setAnalysis(result);
       }
     } catch (err) {
       if (!thisRequest.aborted) {
+        logError('useAnalysis', 'analysis failed', err);
         setError(err.message || 'Analysis failed');
       }
     } finally {
@@ -44,6 +50,7 @@ export function useAnalysis() {
 
   const changeTimeframe = useCallback(async (timeframe) => {
     if (!analysis) return;
+    logInfo('useAnalysis', 'timeframe change started', { timeframe, ticker: analysis.market?.ticker });
 
     setTimeframeLoading(true);
     try {
@@ -65,8 +72,9 @@ export function useAnalysis() {
         potentialScore: newScore,
         timeframe,
       }));
+      logInfo('useAnalysis', 'timeframe change completed', { timeframe });
     } catch (err) {
-      console.error('Timeframe change failed:', err);
+      logError('useAnalysis', 'timeframe change failed', err);
     } finally {
       setTimeframeLoading(false);
     }

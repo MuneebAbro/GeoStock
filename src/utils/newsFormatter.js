@@ -1,9 +1,14 @@
+import { moduleLoaded, logInfo } from './logger';
+
+moduleLoaded('newsFormatter');
+
 /**
- * Format raw news articles into a prompt-ready string for Gemini
+ * Format raw news articles into a prompt-ready string for Groq
  * @param {Array} articles - Array of unified article objects
  * @returns {string} Numbered list of headlines with sources and dates
  */
 export function formatNewsForPrompt(articles) {
+  logInfo('newsFormatter', 'formatNewsForPrompt called', { count: articles?.length || 0 });
   if (!articles || articles.length === 0) {
     return 'No recent geopolitical news available.';
   }
@@ -20,11 +25,12 @@ export function formatNewsForPrompt(articles) {
 }
 
 /**
- * Format price history for Gemini prompt
+ * Format price history for Groq prompt
  * @param {Array} history - Array of { date, close } objects
  * @returns {string} Date: price pairs
  */
 export function formatPriceHistory(history) {
+  logInfo('newsFormatter', 'formatPriceHistory called', { count: history?.length || 0 });
   if (!history || history.length === 0) return 'No historical data available.';
 
   return history

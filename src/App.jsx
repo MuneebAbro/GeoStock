@@ -10,6 +10,9 @@ import SectorRipple from './components/SectorRipple';
 import { StockHeaderSkeleton, MeterSkeleton, DebateSkeleton } from './components/SkeletonLoader';
 import SkeletonLoader from './components/SkeletonLoader';
 import { useAnalysis } from './hooks/useAnalysis';
+import { moduleLoaded, logInfo } from './utils/logger';
+
+moduleLoaded('App');
 
 function LandingHero() {
   return (
@@ -89,11 +92,13 @@ export default function App() {
   const [currentTicker, setCurrentTicker] = useState('');
 
   const handleSearch = useCallback((ticker) => {
+    logInfo('App', 'search triggered', { ticker });
     setCurrentTicker(ticker);
     analyze(ticker);
   }, [analyze]);
 
   const handleRippleSelect = useCallback((ticker) => {
+    logInfo('App', 'ripple stock selected', { ticker });
     setCurrentTicker(ticker);
     analyze(ticker);
     window.scrollTo({ top: 0, behavior: 'smooth' });

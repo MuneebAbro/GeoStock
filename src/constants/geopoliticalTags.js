@@ -1,3 +1,7 @@
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('geopoliticalTags');
+
 export const GEOPOLITICAL_TAGS = {
   'Trade War': { color: '#FF6B35', icon: '⚔️' },
   'Sanctions': { color: '#FF3B5C', icon: '🚫' },

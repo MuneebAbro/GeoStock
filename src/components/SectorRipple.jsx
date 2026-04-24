@@ -1,6 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { IMPACT_DIRECTIONS } from '../constants/geopoliticalTags';
+import { moduleLoaded, logInfo } from '../utils/logger';
+
+moduleLoaded('SectorRipple');
 
 export default function SectorRipple({ sectorRipple, onStockSelect }) {
   const stocks = sectorRipple?.ripple_stocks || [];
@@ -24,7 +27,10 @@ export default function SectorRipple({ sectorRipple, onStockSelect }) {
           return (
             <motion.div key={i}
               whileHover={{ scale: 1.02, borderColor: 'var(--color-accent)' }}
-              onClick={() => onStockSelect?.(stock.ticker)}
+              onClick={() => {
+                logInfo('SectorRipple', 'ripple stock clicked', { ticker: stock.ticker });
+                onStockSelect?.(stock.ticker);
+              }}
               style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)',
                 borderRadius: '10px', padding: '16px', cursor: 'pointer', transition: 'border-color 0.2s' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>

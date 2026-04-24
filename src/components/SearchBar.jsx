@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchTickers } from '../utils/marketDetector';
+import { moduleLoaded, logInfo } from '../utils/logger';
+
+moduleLoaded('SearchBar');
 
 const RECENT_SEARCHES_KEY = 'geostock_recent_searches';
 const MAX_RECENT = 8;
@@ -39,6 +42,7 @@ export default function SearchBar({ onSearch, loading }) {
   }, [query]);
 
   const handleSelect = useCallback((item) => {
+    logInfo('SearchBar', 'ticker selected', { ticker: item?.ticker });
     setQuery(item.ticker);
     setShowDropdown(false);
     addRecentSearch(item);

@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('BullBearDebate');
 
 function useTypewriter(text, speed = 30, delay = 0, enabled = false) {
   const [displayed, setDisplayed] = useState('');

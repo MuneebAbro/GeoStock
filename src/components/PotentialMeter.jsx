@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getScoreZone, getGaugeColor } from '../utils/scoreCalculator';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('PotentialMeter');
 
 const TIMEFRAMES = [
   { key: '1 day', label: '1D' },

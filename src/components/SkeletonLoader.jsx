@@ -1,4 +1,7 @@
 import React from 'react';
+import { moduleLoaded } from '../utils/logger';
+
+moduleLoaded('SkeletonLoader');
 
 export default function SkeletonLoader({ type = 'text', width, height, className = '' }) {
   const styles = {
