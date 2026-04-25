@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import RotatingGlobe from './RotatingGlobe';
 
 /* ── Lightweight animated orbs (CSS only, GPU-accelerated) ── */
 function BackgroundOrbs() {
@@ -43,77 +44,7 @@ function BackgroundOrbs() {
   );
 }
 
-/* ── Animated global market nodes ── */
-function MarketNodes() {
-  const nodes = [
-    { x: '8%',  y: '35%', city: 'NEW YORK',  color: '#818CF8', delay: 0 },
-    { x: '38%', y: '22%', city: 'LONDON',    color: '#818CF8', delay: 0.5 },
-    { x: '56%', y: '30%', city: 'DUBAI',     color: '#FCD34D', delay: 1.0 },
-    { x: '65%', y: '38%', city: 'MUMBAI',    color: '#FCD34D', delay: 1.5 },
-    { x: '84%', y: '28%', city: 'TOKYO',     color: '#818CF8', delay: 2.0 },
-  ];
 
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '80px', marginTop: '24px' }}>
-      {/* Connection line */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(99,102,241,0)" />
-            <stop offset="20%" stopColor="rgba(99,102,241,0.3)" />
-            <stop offset="80%" stopColor="rgba(245,158,11,0.3)" />
-            <stop offset="100%" stopColor="rgba(245,158,11,0)" />
-          </linearGradient>
-        </defs>
-        <line x1="8%" y1="50%" x2="92%" y2="50%"
-          stroke="url(#lineGrad)" strokeWidth="1" strokeDasharray="6 4" />
-      </svg>
-
-      {nodes.map((n, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: n.delay + 0.8, duration: 0.4, type: 'spring' }}
-          style={{
-            position: 'absolute', left: n.x, top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          {/* Pulse ring */}
-          <motion.div
-            animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: n.delay }}
-            style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '24px', height: '24px', borderRadius: '50%',
-              border: `1px solid ${n.color}`,
-              willChange: 'transform, opacity',
-            }}
-          />
-          {/* Core dot */}
-          <div style={{
-            width: '8px', height: '8px', borderRadius: '50%',
-            background: n.color,
-            boxShadow: `0 0 10px ${n.color}`,
-            position: 'relative', zIndex: 1,
-          }} />
-          {/* City label */}
-          <div style={{
-            position: 'absolute', top: '16px', left: '50%',
-            transform: 'translateX(-50%)',
-            fontFamily: 'var(--font-display)', fontSize: '8px',
-            color: n.color, letterSpacing: '1px', whiteSpace: 'nowrap',
-            opacity: 0.8,
-          }}>
-            {n.city}
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Stat counter ── */
 function StatCounter({ end, suffix = '', label, delay = 0 }) {
@@ -230,6 +161,20 @@ export default function HeroSection({ onSearchFocus }) {
       padding: '80px 24px 60px',
       overflow: 'hidden',
     }}>
+
+      {/* ── Large rotating globe — left background ── */}
+      <div style={{
+        position: 'absolute',
+        left: '-220px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.55,
+        filter: 'blur(0.4px)',
+      }}>
+        <RotatingGlobe size={720} />
+      </div>
       <BackgroundOrbs />
 
       {/* Grid overlay — very subtle */}
@@ -319,15 +264,14 @@ export default function HeroSection({ onSearchFocus }) {
           </div>
         </motion.div>
 
-        {/* Market nodes visualization */}
+        {/* Live coverage label */}
         <motion.div {...fadeUp(0.3)}>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: '9px', letterSpacing: '3px',
-            color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '8px',
+            color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '4px',
           }}>
-            LIVE COVERAGE
+            LIVE GLOBAL COVERAGE · NEW YORK · LONDON · DUBAI · KARACHI · TOKYO
           </div>
-          <MarketNodes />
         </motion.div>
 
         {/* Stats */}

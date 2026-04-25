@@ -39,8 +39,13 @@ export default function SearchBar({ onSearch, loading }) {
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
+  const justSubmitted = useRef(false);
 
   useEffect(() => {
+    if (justSubmitted.current) {
+      justSubmitted.current = false;
+      return;
+    }
     if (query.length > 0) {
       const results = searchTickers(query);
       setSuggestions(results);
@@ -55,7 +60,9 @@ export default function SearchBar({ onSearch, loading }) {
 
   const handleSelect = useCallback((item) => {
     logInfo('SearchBar', 'ticker selected', { ticker: item?.ticker });
-    setQuery(item.ticker);
+    justSubmitted.current = true;
+    setQuery('');
+    setSuggestions([]);
     setShowDropdown(false);
     addRecentSearch(item);
     onSearch(item.ticker);

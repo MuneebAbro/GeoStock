@@ -142,7 +142,7 @@ function ErrorDisplay({ error, onRetry }) {
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
-  const { analysis, loading, error, timeframeLoading, analyze, changeTimeframe } = useAnalysis();
+  const { analysis, loading, error, timeframeLoading, analyze, changeTimeframe, reset } = useAnalysis();
   const [currentTicker, setCurrentTicker] = useState('');
 
   const handleSearch = useCallback((ticker) => {
@@ -181,13 +181,13 @@ export default function App() {
       }}>
         <div style={{ padding: '10px 24px' }}>
           <div style={{
-            maxWidth: '1280px', margin: '0 auto',
-            display: 'flex', alignItems: 'center', gap: '20px',
+            maxWidth: '1280px', margin: '0 auto', width: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '20px',
           }}>
 
             {/* ── Logo ── */}
             <div
-              onClick={() => { setCurrentTicker(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => { reset(); setCurrentTicker(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0, userSelect: 'none' }}
             >
               <HexIcon />

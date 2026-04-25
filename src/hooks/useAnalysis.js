@@ -80,6 +80,15 @@ export function useAnalysis() {
     }
   }, [analysis]);
 
+  const reset = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.aborted = true;
+    }
+    setAnalysis(null);
+    setError(null);
+    setLoading(false);
+  }, []);
+
   return {
     analysis,
     loading,
@@ -87,5 +96,6 @@ export function useAnalysis() {
     timeframeLoading,
     analyze,
     changeTimeframe,
+    reset,
   };
 }
