@@ -9,6 +9,7 @@ import PriceChart from './components/PriceChart';
 import SectorRipple from './components/SectorRipple';
 import { StockHeaderSkeleton, MeterSkeleton, DebateSkeleton } from './components/SkeletonLoader';
 import SkeletonLoader from './components/SkeletonLoader';
+import StockFactLoader from './components/StockFactLoader';
 import LandingPage from './components/landing/LandingPage';
 import StockChatbot from './components/StockChatbot';
 import { useAnalysis } from './hooks/useAnalysis';
@@ -251,6 +252,7 @@ export default function App() {
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <StockFactLoader ticker={currentTicker} />
                 <StockHeaderSkeleton />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '16px' }}>
                   <MeterSkeleton />
