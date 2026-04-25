@@ -1,19 +1,19 @@
 // All static/cached data for landing page — ZERO API calls
 export const DEMO_STOCKS = [
-  { ticker: 'NVDA', name: 'NVIDIA Corp', price: '875.28', change: '+4.32%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
-  { ticker: 'AAPL', name: 'Apple Inc', price: '198.11', change: '+1.18%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
-  { ticker: 'TSLA', name: 'Tesla Inc', price: '241.37', change: '-2.15%', sentiment: 'Bearish', exchange: 'NASDAQ', color: '#FF3B5C' },
-  { ticker: 'MSFT', name: 'Microsoft', price: '425.52', change: '+0.87%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
-  { ticker: 'OGDC', name: 'Oil & Gas Dev Co', price: '128.45', change: '+3.21%', sentiment: 'Bullish', exchange: 'PSX', color: '#00FF94' },
-  { ticker: 'HBL', name: 'Habib Bank Ltd', price: '92.30', change: '+1.55%', sentiment: 'Neutral', exchange: 'PSX', color: '#FFD700' },
-  { ticker: 'GOOGL', name: 'Alphabet Inc', price: '164.78', change: '+0.93%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
-  { ticker: 'AMZN', name: 'Amazon.com', price: '186.54', change: '-0.42%', sentiment: 'Neutral', exchange: 'NASDAQ', color: '#FFD700' },
+  { ticker: 'NVDA', name: 'NVIDIA Corp', price: '208.28', change: '+4.32%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
+  { ticker: 'AAPL', name: 'Apple Inc', price: '271.11', change: '+1.18%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
+  { ticker: 'TSLA', name: 'Tesla Inc', price: '376.37', change: '-2.15%', sentiment: 'Bearish', exchange: 'NASDAQ', color: '#FF3B5C' },
+  { ticker: 'MSFT', name: 'Microsoft', price: '424.52', change: '+0.87%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
+  { ticker: 'OGDC', name: 'Oil & Gas Dev Co', price: '325.45', change: '+3.21%', sentiment: 'Bullish', exchange: 'PSX', color: '#00FF94' },
+  { ticker: 'HBL', name: 'Habib Bank Ltd', price: '298.30', change: '+1.55%', sentiment: 'Neutral', exchange: 'PSX', color: '#FFD700' },
+  { ticker: 'GOOGL', name: 'Alphabet Inc', price: '344.78', change: '+0.93%', sentiment: 'Bullish', exchange: 'NASDAQ', color: '#00FF94' },
+  { ticker: 'AMZN', name: 'Amazon.com', price: '263.54', change: '-0.42%', sentiment: 'Neutral', exchange: 'NASDAQ', color: '#FFD700' },
 ];
 
 export const PSX_STOCKS = [
-  { ticker: 'OGDC', name: 'Oil & Gas Dev Co', price: '128.45', change: '+3.21%', sentiment: 'Bullish', sector: 'Energy' },
-  { ticker: 'HBL', name: 'Habib Bank Ltd', price: '92.30', change: '+1.55%', sentiment: 'Neutral', sector: 'Banking' },
-  { ticker: 'PSO', name: 'Pakistan State Oil', price: '215.70', change: '+2.08%', sentiment: 'Bullish', sector: 'Energy' },
+  { ticker: 'OGDC', name: 'Oil & Gas Dev Co', price: '325.45', change: '+3.21%', sentiment: 'Bullish', sector: 'Energy' },
+  { ticker: 'HBL', name: 'Habib Bank Ltd', price: '298.30', change: '+1.55%', sentiment: 'Neutral', sector: 'Banking' },
+  { ticker: 'PSO', name: 'Pakistan State Oil', price: '393.70', change: '+2.08%', sentiment: 'Bullish', sector: 'Energy' },
 ];
 
 export const DEMO_CHART_DATA = [
@@ -36,7 +36,7 @@ export const DEMO_CHART_DATA = [
 
 export const DEMO_ANALYSIS_CARD = {
   ticker: 'NVDA',
-  score: 82,
+  score: 72,
   stance: 'Bullish',
   confidence: 'High',
   summary: 'AI chip demand surge driven by global AI infrastructure expansion. US-China tech restrictions create short-term supply uncertainty but long-term market dominance.',

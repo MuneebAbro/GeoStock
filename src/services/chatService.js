@@ -115,6 +115,7 @@ export async function sendChatMessage(messages, stockContext, retries = 2) {
       if (response.status === 429) {
         const waitMs = 2000 * attempt;
         logWarn('chatService', `rate limited, waiting ${waitMs}ms`);
+        lastError = new Error('Rate limited — too many requests. Please wait a moment and try again.');
         await delay(waitMs);
         continue;
       }
